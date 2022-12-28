@@ -23,7 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <string.h>
-
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,6 +41,7 @@
 #define W25_RESET 0x99
 #define W25_READ 0x03
 #define W25_GET_JEDEC_ID 0x9f
+#define W25_UNIQUE_ID 0x4B
 //---------------------------------------------------------
 #define cs_set() HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,GPIO_PIN_RESET)
 #define cs_reset() HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,GPIO_PIN_SET)
@@ -100,15 +101,22 @@ void W25_Read_Data(uint32_t addr,uint8_t* data,uint32_t sz)
 	cs_reset();
 }
 //---------------------------------------------------------
-uint32_t W25_Read_ID(void)
+uint64_t W25_Read_ID(void)
 {
-	uint8_t dt[4];
-	tx_buf[0] = W25_GET_JEDEC_ID;
-	cs_set();
-	SPI1_Send(tx_buf,1);
-	SPI1_Recv(dt, 3);
-	cs_reset();
-	return (dt[0] << 16) | (dt[1] << 8 ) | dt[2];
+	  uint8_t dt[12];
+	  tx_buf[0] = W25_UNIQUE_ID;
+	  cs_set();
+	  SPI1_Send(tx_buf, 1);
+	  SPI1_Recv(dt,12);
+	  cs_reset();
+	  uint64_t v = 0;
+	  for (int i = 4;i < 12;i++)
+	  {
+		  v |= dt[i];
+		  if (i!=11)
+			  v <<= 8;
+	  }
+	  return v;
 }
 //---------------------------------------------------------
 void W25_Ini(void)
@@ -135,7 +143,9 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+//  W25_Ini();
+//  uint32_t x = W25_Read_ID();
+//  HAL_UART_Transmit(&huart1, (uint8_t*)x,4,1000);
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -150,7 +160,7 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  W25_Ini();
+  //W25_Ini();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -160,6 +170,17 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  char str1[10];
+	  char str2[10];
+	  W25_Ini();
+	  uint64_t id = W25_Read_ID();
+	  uint32_t low = id;
+	  uint32_t high = (id >> 32);
+	  sprintf(str1,"ID:0x%lX",high);
+	  sprintf(str2,"%lX\r\n",low);
+	  strcat(str1,str2);
+	  HAL_UART_Transmit(&huart1,(uint8_t *) str1,strlen(str1),1000);
+	  HAL_Delay(2000);
   }
   /* USER CODE END 3 */
 }
@@ -226,7 +247,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -294,7 +315,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(CS_GPIO_Port, &GPIO_InitStruct);
 
 }

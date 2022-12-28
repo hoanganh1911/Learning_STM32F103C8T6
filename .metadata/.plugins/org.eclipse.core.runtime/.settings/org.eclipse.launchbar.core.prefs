@@ -7,4 +7,5 @@ org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:Blink\ Debug/activeLaunchMode=r
 org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:Blink\ Debug/activeLaunchTarget=null\:---
 org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:W25Q32_SPI/activeLaunchMode=run
 org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:W25Q32_SPI/activeLaunchTarget=null\:---
-org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:W25Q_SPI/activeLaunchMode=run
+org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:W25Q_SPI/activeLaunchMode=debug
+org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:W25Q_SPI/activeLaunchTarget=null\:---
