@@ -5969,3 +5969,14 @@
 2022-12-28 20:34:21,003 [INFO] ProjectBuilder:4351 - Time for Generating toolchain IDE Files: 2430mS.
 2022-12-28 20:34:21,005 [INFO] ProjectBuilder:2790 - Time for Copy CMSIS : 0mS.
 2022-12-28 20:34:21,006 [INFO] ProjectBuilder:2790 - Time for Copy CMSIS : 0mS.
+2022-12-29 18:15:03,996 [INFO] JxBrowserEngine:114 - Initiate JxBrowser Engine with user profile folder
+2022-12-29 18:15:04,879 [INFO] WebAppUi:459 - Close the Jxbrowser engine manually
+2022-12-29 18:15:04,882 [INFO] WebAppUi:462 - Profiles folder deleted
+2022-12-29 18:15:05,156 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2022-12-29 18:15:10,384 [INFO] Activator:179 - 
+
+
+2022-12-29 18:15:10,385 [INFO] Activator:180 - !SESSION log4j initialized
+2022-12-29 18:15:35,708 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+2022-12-29 18:15:35,709 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Defaulting to no-operation (NOP) logger implementation
+2022-12-29 18:15:35,710 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
