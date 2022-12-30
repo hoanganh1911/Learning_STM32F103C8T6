@@ -1,6 +1,6 @@
 #include "w25q_spi.h"
 w25_info_t  w25_info;
-uint8_t buf[256];
+uint8_t buf[10];
 void SPI1_Send(uint8_t *dt,uint16_t cnt)
 {
 	HAL_SPI_Transmit(&hspi1, dt, cnt, 1000);
@@ -77,7 +77,7 @@ void W25_PrintUart_ReadData(void)
 	unsigned int addr=0;
 	for(uint16_t k=0; k<4; k++)
 	{
-		W25_Read_Data(k*256, buf, 256); // Mỗi lần đọc về sẽ đọc 256 bytes tương ứng với 256 địa chỉ
+		W25_Read_Data(k*256, buf, 256);
 		for(uint8_t i=0; i<16; i++)
 		{
 			addr = k*256 + i*16;
