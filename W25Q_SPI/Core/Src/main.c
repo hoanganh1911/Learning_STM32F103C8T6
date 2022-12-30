@@ -92,18 +92,29 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  //W25_Ini();
+//  W25_Init();
+//  char str[1] = "x";
+//  for (int t = 0;t< 4096;t++)
+//  {
+//	  W25_Write_Data(t,(uint8_t*) str,1);
+//	  HAL_Delay(2000);
+//  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  W25_Init();
-	  W25_PrintUart_ReadData();
+
+//      W25_Erase_Sector(0);
+//	  W25_Init();
+//	  char str[1] = "x";
+//	  W25_Write_Data(0x900,str,1);
+//	  W25_PrintUart_ReadData();
 	  HAL_Delay(2000);
   }
   /* USER CODE END 3 */

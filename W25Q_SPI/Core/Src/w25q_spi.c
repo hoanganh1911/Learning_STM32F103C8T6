@@ -69,14 +69,37 @@ void W25_Read_Page(uint8_t* data, uint32_t page_addr, uint32_t offset, uint32_t 
 	if((offset+sz) > w25_info.PageSize)
 		sz = w25_info.PageSize - offset;
 	page_addr = page_addr*w25_info.PageSize + offset;
+	buf[0] = W25_FAST_READ;
+	if(w25_info.high_cap)
+	{
+		buf[1] = (page_addr >> 24) & 0xFF;
+		buf[2] = (page_addr >> 16) & 0xFF;
+		buf[3] = (page_addr >> 8) & 0xFF;
+		buf[4] = page_addr & 0xFF;
+		buf[5] = 0;
+		cs_set();
+		SPI1_Send(buf,6);
+	}
+	else
+	{
+		buf[1] = (page_addr >> 16) & 0xFF;
+		buf[2] = (page_addr >> 8) & 0xFF;
+		buf[3] = page_addr & 0xFF;
+		buf[4] = 0;
+		cs_set();
+		SPI1_Send(buf, 5);
+	}
+	SPI1_Recv(data, sz);
+	cs_reset();
 }
 //---------------------------------------------------------
 void W25_PrintUart_ReadData(void)
 {
 	char str1[30];
 	unsigned int addr=0;
-	for(uint16_t k=0; k<4; k++) // Đang đọc 4 trang nếu muốn đọc hết sẽ = 4194304/256 = 16384
-	{	//
+	for(uint16_t k=0; k<10; k++) // Đang đọc 4 trang nếu muốn đọc hết sẽ = 4194304/256 = 16384
+	{
+		//W25_Read_Page(buf,k,0,256);
 		W25_Read_Data(k*256, buf, 256); // Mỗi lần đọc về sẽ đọc 256 bytes tương ứng với 256 địa chỉ
 		for(uint8_t i=0; i<16; i++) // Số hàng
 		{
@@ -86,7 +109,7 @@ void W25_PrintUart_ReadData(void)
 			for(uint8_t j=0; j<16; j++) // Số cột
 			{
 				sprintf(str1,"%02X", buf[(uint16_t)i*16 + (uint16_t)j]); // addr = số hàng *16 + số cột
-				HAL_UART_Transmit(&huart1,(uint8_t*)str1,2,0x1000);
+				HAL_UART_Transmit(&huart1,(uint8_t*)str1,2,0x1000); // In ra mã HEX tại địa chỉ tương ứng
 				if(j==7)
 					HAL_UART_Transmit(&huart1,(uint8_t*)"|",1,0x1000);
 				else
@@ -99,7 +122,7 @@ void W25_PrintUart_ReadData(void)
 					sprintf(str1," ");
 				else
 					sprintf(str1,"%c", (char) buf[(uint16_t)i*16 + (uint16_t)j]);
-				HAL_UART_Transmit(&huart1,(uint8_t*)str1,1,0x1000);
+				HAL_UART_Transmit(&huart1,(uint8_t*)str1,1,0x1000); // In kí tự tại địa chỉ tương ứng
 			}
 			HAL_UART_Transmit(&huart1,(uint8_t*)"\r\n",2,0x1000);
 		}
@@ -111,14 +134,17 @@ void W25_Info(void)
 {
 	uint32_t Jedec_ID = W25_Read_Jedec_ID();
 	Jedec_ID &= 0x0000ffff;
+	w25_info.high_cap = 0;
 	char str[30];
 	switch(Jedec_ID)
 	{
 	case 0x401A:
+		w25_info.high_cap = 1;
 		w25_info.BlockCount=1024;
 		sprintf(str,"w25qxx Chip: w25q512\r\n");
 		break;
 	case 0x4019:
+		w25_info.high_cap = 1;
 		w25_info.BlockCount=512;
 		sprintf(str,"w25qxx Chip: w25q256\r\n");
 		break;
@@ -197,5 +223,185 @@ void W25_Init(void)
 	HAL_Delay(100);
 	W25_Reset();
 	HAL_Delay(100);
+	W25_Info(); //In ra info
 }
 //---------------------------------------------------------
+void W25_Write_Enable(void)
+{
+	cs_set();
+    buf[0] = W25_WRITE_ENABLE;
+	SPI1_Send(buf, 1);
+	cs_reset();
+	HAL_Delay(1);
+}
+//-------------------------------------------------------------
+void W25_Write_Disable(void)
+{
+	cs_set();
+    buf[0] = W25_WRITE_DISABLE;
+	SPI1_Send(buf, 1);
+	cs_reset();
+	HAL_Delay(1);
+}
+//-------------------------------------------------------------
+void W25_Wait_Write_End(void)
+{
+	HAL_Delay(1);
+	cs_set();
+	buf[0] = W25_READ_STATUS_1;
+	SPI1_Send(buf, 1);
+	do{
+		SPI1_Recv(buf,1);
+		w25_info.StatusRegister1 = buf[0];
+		HAL_Delay(1);
+	}
+	while((w25_info.StatusRegister1 & 0x01) == 0x01);
+	cs_reset();
+	}
+//-------------------------------------------------------------
+void W25_Set_Block_Protect(uint8_t val)
+{
+	buf[0] = 0x50;
+	cs_set();
+	SPI1_Send(buf, 1);
+	cs_reset();
+	buf[0] = W25_WRITE_STATUS_1;
+	buf[1] = ((val & 0x0F) << 2);
+	cs_set();
+	SPI1_Send(buf, 2);
+	cs_reset();
+}
+//-------------------------------------------------------------
+void W25_Write_Data(uint32_t addr, uint8_t* data, uint32_t sz)
+{
+	W25_Wait_Write_End();
+	W25_Set_Block_Protect(0x00);
+	W25_Write_Enable();
+	cs_set();
+	buf[0] = W25_PAGE_PROGRAMM;
+	if(w25_info.high_cap)
+	{
+		buf[1] = (addr >> 24) & 0xFF;
+		buf[2] = (addr >> 16) & 0xFF;
+		buf[3] = (addr >> 8) & 0xFF;
+		buf[4] = addr & 0xFF;
+		SPI1_Send(buf, 5);
+	}
+	else
+	{
+		buf[1] = (addr >> 16) & 0xFF;
+		buf[2] = (addr >> 8) & 0xFF;
+		buf[3] = addr & 0xFF;
+		SPI1_Send(buf, 4);
+	}
+	SPI1_Send(data, sz);
+	cs_reset();
+	W25_Wait_Write_End();
+	W25_Write_Disable();
+	W25_Set_Block_Protect(0x0F);
+}
+//-------------------------------------------------------------
+void W25_Write_Page(uint8_t* data, uint32_t page_addr, uint32_t offset, uint32_t sz)
+{
+	if(sz > w25_info.PageSize)
+		sz=w25_info.PageSize;
+	if((offset+sz) > w25_info.PageSize)
+		sz = w25_info.PageSize - offset;
+	page_addr = page_addr * w25_info.PageSize + offset;
+
+	W25_Wait_Write_End();
+	W25_Set_Block_Protect(0x00);
+	W25_Write_Enable();
+	cs_set();
+	buf[0] = W25_PAGE_PROGRAMM;
+	if(w25_info.high_cap)
+	{
+		buf[1] = (page_addr >> 24) & 0xFF;
+		buf[2] = (page_addr >> 16) & 0xFF;
+		buf[3] = (page_addr >> 8) & 0xFF;
+		buf[4] = page_addr & 0xFF;
+		SPI1_Send(buf, 5);
+	}
+	else
+	{
+		buf[1] = (page_addr >> 16) & 0xFF;
+		buf[2] = (page_addr >> 8) & 0xFF;
+		buf[3] = page_addr & 0xFF;
+		SPI1_Send(buf, 4);
+	}
+	SPI1_Send(data, sz);
+	cs_reset();
+	W25_Wait_Write_End();
+	W25_Write_Disable();
+	W25_Set_Block_Protect(0x0F);
+}
+//-------------------------------------------------------------
+void W25_Erase_Sector(uint32_t addr)
+{
+	W25_Wait_Write_End();
+	W25_Set_Block_Protect(0x00);
+	addr = addr * w25_info.SectorSize;
+	W25_Write_Enable();
+	cs_set();
+	buf[0] = W25_SECTOR_ERASE;
+	if(w25_info.high_cap)
+	{
+		buf[1] = (addr >> 24) & 0xFF;
+		buf[2] = (addr >> 16) & 0xFF;
+		buf[3] = (addr >> 8) & 0xFF;
+		buf[4] = addr & 0xFF;
+		SPI1_Send(buf, 5);
+	}
+	else
+	{
+		buf[1] = (addr >> 16) & 0xFF;
+		buf[2] = (addr >> 8) & 0xFF;
+		buf[3] = addr & 0xFF;
+		SPI1_Send(buf, 4);
+	}
+	cs_reset();
+	W25_Wait_Write_End();
+	//HAL_Delay(1);
+	W25_Write_Disable();
+	W25_Set_Block_Protect(0x0F);
+}
+//-------------------------------------------------------------
+void W25_Erase_Block(uint32_t addr)
+{
+  W25_Wait_Write_End();
+  addr = addr * w25_info.BlockSize;
+  W25_Write_Enable();
+  cs_set();
+  buf[0] = W25_BLOCK_ERASE;
+  if(w25_info.high_cap)
+  {
+    buf[1] = (addr >> 24) & 0xFF;
+    buf[2] = (addr >> 16) & 0xFF;
+    buf[3] = (addr >> 8) & 0xFF;
+    buf[4] = addr & 0xFF;
+    SPI1_Send(buf, 5);
+  }
+  else
+  {
+    buf[1] = (addr >> 16) & 0xFF;
+    buf[2] = (addr >> 8) & 0xFF;
+    buf[3] = addr & 0xFF;
+    SPI1_Send(buf, 4);
+  }
+  cs_reset();
+  W25_Wait_Write_End();
+  HAL_Delay(1);
+}
+//-------------------------------------------------------------
+void W25_Erase_Chip(void)
+{
+  W25_Wait_Write_End();
+  W25_Write_Enable();
+  cs_set();
+  buf[0] = W25_CHIP_ERASE;
+  SPI1_Send(buf, 1);
+  cs_reset();
+  W25_Wait_Write_End();
+  HAL_Delay(10);
+}
+//-------------------------------------------------------------
