@@ -35,15 +35,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_ranges 000007c8  00000000  00000000  00029798  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  000178d1  00000000  00000000  00029f60  2**0
+ 16 .debug_macro  000178e9  00000000  00000000  00029f60  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00009369  00000000  00000000  00041831  2**0
+ 17 .debug_line   00009369  00000000  00000000  00041849  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00083fad  00000000  00000000  0004ab9a  2**0
+ 18 .debug_str    00083fad  00000000  00000000  0004abb2  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000050  00000000  00000000  000ceb47  2**0
+ 19 .comment      00000050  00000000  00000000  000ceb5f  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  0000253c  00000000  00000000  000ceb98  2**2
+ 20 .debug_frame  0000253c  00000000  00000000  000cebb0  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1157,11 +1157,11 @@ void W25_PrintUart_ReadData(void)
 	unsigned int addr=0;
  8000696:	2300      	movs	r3, #0
  8000698:	627b      	str	r3, [r7, #36]	; 0x24
-	for(uint16_t k=0; k<4; k++)
+	for(uint16_t k=0; k<4; k++) // Đang đọc 4 trang nếu muốn đọc hết sẽ = 4194304/256 = 16384
  800069a:	2300      	movs	r3, #0
  800069c:	85fb      	strh	r3, [r7, #46]	; 0x2e
  800069e:	e0b2      	b.n	8000806 <W25_PrintUart_ReadData+0x176>
-	{
+	{	//
 		W25_Read_Data(k*256, buf, 256); // Mỗi lần đọc về sẽ đọc 256 bytes tương ứng với 256 địa chỉ
  80006a0:	8dfb      	ldrh	r3, [r7, #46]	; 0x2e
  80006a2:	021b      	lsls	r3, r3, #8
@@ -1323,7 +1323,7 @@ void W25_PrintUart_ReadData(void)
  80007f8:	490f      	ldr	r1, [pc, #60]	; (8000838 <W25_PrintUart_ReadData+0x1a8>)
  80007fa:	4809      	ldr	r0, [pc, #36]	; (8000820 <W25_PrintUart_ReadData+0x190>)
  80007fc:	f001 fd29 	bl	8002252 <HAL_UART_Transmit>
-	for(uint16_t k=0; k<4; k++)
+	for(uint16_t k=0; k<4; k++) // Đang đọc 4 trang nếu muốn đọc hết sẽ = 4194304/256 = 16384
  8000800:	8dfb      	ldrh	r3, [r7, #46]	; 0x2e
  8000802:	3301      	adds	r3, #1
  8000804:	85fb      	strh	r3, [r7, #46]	; 0x2e

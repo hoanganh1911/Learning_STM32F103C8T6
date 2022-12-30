@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "w25q_spi.h"
 //---------------------------------------------------------
 #define W25_ENABLE_RESET 0x66
 #define W25_RESET 0x99

@@ -75,17 +75,17 @@ void W25_PrintUart_ReadData(void)
 {
 	char str1[30];
 	unsigned int addr=0;
-	for(uint16_t k=0; k<4; k++)
-	{
+	for(uint16_t k=0; k<4; k++) // Đang đọc 4 trang nếu muốn đọc hết sẽ = 4194304/256 = 16384
+	{	//
 		W25_Read_Data(k*256, buf, 256); // Mỗi lần đọc về sẽ đọc 256 bytes tương ứng với 256 địa chỉ
-		for(uint8_t i=0; i<16; i++)
+		for(uint8_t i=0; i<16; i++) // Số hàng
 		{
 			addr = k*256 + i*16;
 			sprintf(str1,"%08X: ", addr);
 			HAL_UART_Transmit(&huart1,(uint8_t*)str1,10,0x1000);
-			for(uint8_t j=0; j<16; j++)
+			for(uint8_t j=0; j<16; j++) // Số cột
 			{
-				sprintf(str1,"%02X", buf[(uint16_t)i*16 + (uint16_t)j]);
+				sprintf(str1,"%02X", buf[(uint16_t)i*16 + (uint16_t)j]); // addr = số hàng *16 + số cột
 				HAL_UART_Transmit(&huart1,(uint8_t*)str1,2,0x1000);
 				if(j==7)
 					HAL_UART_Transmit(&huart1,(uint8_t*)"|",1,0x1000);

@@ -6,5 +6,11 @@
 		<item key="DIALOG_WIDTH" value="373"/>
 		<item key="DIALOG_HEIGHT" value="420"/>
 		<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>
+		<item key="ShowViewDialog.STORE_SELECTED_VIEW_ID" value="org.eclipse.remote.ui.view.connections"/>
+		<list key="ShowViewDialog.STORE_EXPANDED_CATEGORIES_ID">
+			<item value="Connections"/>
+			<item value="ThreadX"/>
+			<item value="Version Control (Team)"/>
+		</list>
 	</section>
 </section>
