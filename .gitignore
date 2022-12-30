@@ -5,10 +5,10 @@
 .metadata/
 
 #Debug
-/Debug/
-/debug/
-/Release/
-/release
+Debug/
+debug/
+Release/
+release
 
 # Prerequisites
 *.d
