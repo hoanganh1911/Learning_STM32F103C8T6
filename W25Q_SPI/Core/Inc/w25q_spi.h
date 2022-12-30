@@ -3,9 +3,10 @@
 //---------------------------------------------------------
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx_hal_spi.h"
-#include "stdint.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include "w25q_spi.h"
 //---------------------------------------------------------
 #define W25_ENABLE_RESET 0x66
 #define W25_RESET 0x99
@@ -20,21 +21,20 @@
 extern SPI_HandleTypeDef hspi1;
 extern UART_HandleTypeDef huart1;
 //---------------------------------------------------------
-//typedef struct
-//{
-//  uint16_t  PageSize;
-//  uint32_t  PageCount;
-//  uint32_t  SectorSize;
-//  uint32_t  SectorCount;
-//  uint32_t  BlockSize;
-//  uint32_t  BlockCount;
-//  uint32_t  NumKB;
-//  uint8_t   SR1;
-//  uint8_t   SR2;
-//  uint8_t   SR3;
-//}w25_info_t;
-//w25_info_t  w25_info;
-uint8_t buf[10];
+typedef struct
+{
+  uint16_t  PageSize;
+  uint32_t  PageCount;
+  uint32_t  SectorSize;
+  uint32_t  SectorCount;
+  uint32_t  BlockSize;
+  uint32_t  BlockCount;
+  uint32_t  NumKB;
+  uint8_t   SR1;
+  uint8_t   SR2;
+  uint8_t   SR3;
+}w25_info_t;
+
 //---------------------------------------------------------
 void SPI1_Send(uint8_t *dt,uint16_t cnt);
 void SPI1_Recv(uint8_t *dt,uint16_t cnt);
@@ -42,6 +42,9 @@ void W25_Reset(void);
 void W25_Read_Data(uint32_t addr,uint8_t* data,uint32_t sz);
 uint64_t W25_Read_ID(void);
 uint32_t W25_Read_Jedec_ID(void);
-void W25_Ini(void);
+void W25_Init(void);
+void W25_Info(void);
+void UART_64bit(uint64_t x);
+void W25_PrintUart_ReadData(void);
 //---------------------------------------------------------
 #endif /* __W25Q_SPI_H */

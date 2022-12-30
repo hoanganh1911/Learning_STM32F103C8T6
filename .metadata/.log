@@ -869,3 +869,33 @@ Command-line arguments:  -data file:/home/hoanganh/STM32CubeIDE/workspace_1.11.0
 
 !ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2022-12-29 18:15:15.485
 !MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2022-12-29 21:59:09.283
+!MESSAGE Indexed 'W25Q_SPI' (22 sources, 84 headers) in 2.3 sec: 4,752 declarations; 21,933 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.0075%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2022-12-29 22:05:24.657
+!MESSAGE Error - No active DSF-Session. tmpSessionId = 43 (contextManager row 121)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2022-12-29 22:05:24.658
+!MESSAGE Existing sessions are:
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2022-12-29 22:05:24.658
+!MESSAGE Error - No active DSF-Session. tmpSessionId = 43 (contextManager row 121)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2022-12-29 22:05:24.658
+!MESSAGE Existing sessions are:
+!SESSION 2022-12-30 08:39:46.716 -----------------------------------------------
+eclipse.buildId=Version 1.11.0
+java.version=11.0.16
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Command-line arguments:  -os linux -ws gtk -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2022-12-30 08:39:54.078
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2022-12-30 08:39:54.148
+!MESSAGE Log4j initialized with config file /home/hoanganh/STM32CubeIDE/workspace_1.11.0/.metadata/.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2022-12-30 08:39:59.542
+!MESSAGE Started RMI Server, listening on port 41337

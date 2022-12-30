@@ -21,10 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "w25q_spi.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -80,9 +77,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-//  W25_Ini();
-//  uint32_t x = W25_Read_ID();
-//  HAL_UART_Transmit(&huart1, (uint8_t*)x,4,1000);
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -107,16 +102,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  char str1[10];
-	  char str2[10];
-	  W25_Ini();
-	  uint64_t id = W25_Read_ID();
-	  uint32_t low = id;
-	  uint32_t high = (id >> 32);
-	  sprintf(str1,"ID:0x%lX",high);
-	  sprintf(str2,"%lX\r\n",low);
-	  strcat(str1,str2);
-	  HAL_UART_Transmit(&huart1,(uint8_t *) str1,strlen(str1),1000);
+	  W25_Init();
+	  W25_PrintUart_ReadData();
 	  HAL_Delay(2000);
   }
   /* USER CODE END 3 */
