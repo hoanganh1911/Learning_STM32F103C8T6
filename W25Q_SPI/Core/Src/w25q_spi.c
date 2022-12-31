@@ -252,6 +252,11 @@ void W25_Info(SPI_HandleTypeDef hspi,UART_HandleTypeDef huart,w25_info_t *w25_in
 	w25_info->NumKB=(w25_info->SectorCount*w25_info->SectorSize)/1024;
 }
 //---------------------------------------------------------
+/**
+ * @brief Inint W25Qxx
+ *
+ * @param hspi
+ */
 void W25_Init(SPI_HandleTypeDef hspi)
 {
 	HAL_Delay(100);
@@ -259,6 +264,11 @@ void W25_Init(SPI_HandleTypeDef hspi)
 	HAL_Delay(100);
 }
 //---------------------------------------------------------
+/**
+ * @brief Enable Write data to W25Qxx
+ *
+ * @param hspi
+ */
 void W25_Write_Enable(SPI_HandleTypeDef hspi)
 {
 	cs_set();
@@ -267,6 +277,11 @@ void W25_Write_Enable(SPI_HandleTypeDef hspi)
 	cs_reset();
 }
 //-------------------------------------------------------------
+/**
+ * @brief Disable Write data to W25Qxx
+ *
+ * @param hspi
+ */
 void W25_Write_Disable(SPI_HandleTypeDef hspi)
 {
 	cs_set();
@@ -275,6 +290,12 @@ void W25_Write_Disable(SPI_HandleTypeDef hspi)
 	cs_reset();
 }
 //-------------------------------------------------------------
+/**
+ * @brief Check busy bit in register 1
+ *
+ * @param hspi
+ * @param w25_info
+ */
 void W25_Wait_Write_End(SPI_HandleTypeDef hspi,w25_info_t w25_info)
 {
 	HAL_Delay(1);
@@ -288,8 +309,14 @@ void W25_Wait_Write_End(SPI_HandleTypeDef hspi,w25_info_t w25_info)
 	}
 	while((w25_info.StatusRegister1 & 0x01) == 0x01);
 	cs_reset();
-	}
+}
 //-------------------------------------------------------------
+/**
+ * @brief Protect Writting to W25Qxx
+ *
+ * @param hspi
+ * @param val
+ */
 void W25_Set_Block_Protect(SPI_HandleTypeDef hspi,uint8_t val)
 {
 	buf[0] = 0x50;
@@ -303,6 +330,15 @@ void W25_Set_Block_Protect(SPI_HandleTypeDef hspi,uint8_t val)
 	cs_reset();
 }
 //-------------------------------------------------------------
+/**
+ * @brief Write data to W25Qxx
+ *
+ * @param hspi
+ * @param w25_info
+ * @param addr
+ * @param data
+ * @param sz
+ */
 void W25_Write_Data(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr, uint8_t* data, uint32_t sz)
 {
 	W25_Wait_Write_End(hspi,w25_info);
@@ -332,10 +368,20 @@ void W25_Write_Data(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr, ui
 	W25_Set_Block_Protect(hspi,0x0F);
 }
 //-------------------------------------------------------------
+/**
+ * @brief Write data page by page to W25Qxx
+ *
+ * @param hspi
+ * @param w25_info
+ * @param data
+ * @param page_addr
+ * @param offset
+ * @param sz
+ */
 void W25_Write_Page(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint8_t* data, uint32_t page_addr, uint32_t offset, uint32_t sz)
 {
 	if(sz > w25_info.PageSize)
-		sz=w25_info.PageSize;
+		sz = w25_info.PageSize;
 	if((offset+sz) > w25_info.PageSize)
 		sz = w25_info.PageSize - offset;
 	page_addr = page_addr * w25_info.PageSize + offset;
@@ -367,6 +413,13 @@ void W25_Write_Page(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint8_t* data, ui
 	W25_Set_Block_Protect(hspi,0x0F);
 }
 //-------------------------------------------------------------
+/**
+ * @brief The Sector Erase instruction sets all memory within a specified sector (4K-bytes) to the erased state of all 1s (FFh)
+ *
+ * @param hspi
+ * @param w25_info
+ * @param addr
+ */
 void W25_Erase_Sector(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr)
 {
 	W25_Wait_Write_End(hspi,w25_info);
@@ -392,11 +445,17 @@ void W25_Erase_Sector(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr)
 	}
 	cs_reset();
 	W25_Wait_Write_End(hspi,w25_info);
-	//HAL_Delay(1);
 	W25_Write_Disable(hspi);
 	W25_Set_Block_Protect(hspi,0x0F);
 }
 //-------------------------------------------------------------
+/**
+ * @brief The Block Erase instruction sets all memory within a specified block (64K-bytes) to the erased state of all 1s (FFh).
+ *
+ * @param hspi
+ * @param w25_info
+ * @param addr
+ */
 void W25_Erase_Block(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr)
 {
   W25_Wait_Write_End(hspi,w25_info);
@@ -426,6 +485,12 @@ void W25_Erase_Block(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr)
 	W25_Set_Block_Protect(hspi,0x0F);
 }
 //-------------------------------------------------------------
+/**
+ * @brief The Chip Erase instruction sets all memory within the device to the erased state of all 1s (FFh)
+ *
+ * @param hspi
+ * @param w25_info
+ */
 void W25_Erase_Chip(SPI_HandleTypeDef hspi,w25_info_t w25_info)
 {
 	W25_Wait_Write_End(hspi,w25_info);
