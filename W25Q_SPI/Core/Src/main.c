@@ -93,13 +93,7 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-//  W25_Init();
-//  char str[1] = "x";
-//  for (int t = 0;t< 4096;t++)
-//  {
-//	  W25_Write_Data(t,(uint8_t*) str,1);
-//	  HAL_Delay(2000);
-//  }
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,14 +102,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	uint64_t id = W25_Read_ID(hspi1);
+	UART_64bit(huart1, id);
     /* USER CODE BEGIN 3 */
-
-//      W25_Erase_Sector(0);
-//	  W25_Init();
-//	  char str[1] = "x";
-//	  W25_Write_Data(0x900,str,1);
-//	  W25_PrintUart_ReadData();
 	  HAL_Delay(2000);
   }
   /* USER CODE END 3 */

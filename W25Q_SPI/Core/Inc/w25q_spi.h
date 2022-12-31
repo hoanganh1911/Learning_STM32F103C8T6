@@ -2,7 +2,6 @@
 #define _W25Q_SPI_H
 //---------------------------------------------------------
 #include "stm32f1xx_hal.h"
-#include "stm32f1xx_hal_spi.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -46,22 +45,26 @@ typedef struct
   uint8_t   StatusRegister2;
   uint8_t   StatusRegister3;
 }w25_info_t;
-
 //---------------------------------------------------------
-void SPI1_Send(uint8_t *dt,uint16_t cnt);
-void SPI1_Recv(uint8_t *dt,uint16_t cnt);
-void W25_Reset(void);
-void W25_Read_Data(uint32_t addr,uint8_t* data,uint32_t sz);
-uint64_t W25_Read_ID(void);
-uint32_t W25_Read_Jedec_ID(void);
-void W25_Init(void);
-void W25_Info(void);
-void UART_64bit(uint64_t x);
-void W25_PrintUart_ReadData(void);
-void W25_Write_Enable(void);
-void W25_Erase_Sector(uint32_t addr);
-void W25_Erase_Block(uint32_t addr);
-void W25_Erase_Chip(void);
-void W25_Write_Data(uint32_t addr, uint8_t* data, uint32_t sz);
+void SPI1_Send(SPI_HandleTypeDef hspi,uint8_t *dt,uint16_t cnt);
+void SPI1_Recv(SPI_HandleTypeDef hspi,uint8_t *dt,uint16_t cnt);
+void W25_Info(SPI_HandleTypeDef hspi,UART_HandleTypeDef huart,w25_info_t w25_info);
+void W25_Init(SPI_HandleTypeDef hspi);
+void W25_Reset(SPI_HandleTypeDef hspi);
+void W25_Read_Data(SPI_HandleTypeDef hspi,uint32_t addr,uint8_t* data,uint32_t sz);
+uint64_t W25_Read_ID(SPI_HandleTypeDef hspi);
+void UART_64bit(UART_HandleTypeDef huart1,uint64_t x);
+void W25_Read_Page(SPI_HandleTypeDef hsp1,w25_info_t w25_info,uint8_t* data, uint32_t page_addr, uint32_t offset, uint32_t sz);
+void W25_PrintUart_ReadData(SPI_HandleTypeDef hspi1,UART_HandleTypeDef huart1);
+uint32_t W25_Read_Jedec_ID(SPI_HandleTypeDef hspi);
+void W25_Write_Enable(SPI_HandleTypeDef hspi);
+void W25_Write_Disable(SPI_HandleTypeDef hspi);
+void W25_Wait_Write_End(SPI_HandleTypeDef hspi,w25_info_t w25_info);
+void W25_Set_Block_Protect(SPI_HandleTypeDef hspi,uint8_t val);
+void W25_Write_Data(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr, uint8_t* data, uint32_t sz);
+void W25_Write_Page(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint8_t* data, uint32_t page_addr, uint32_t offset, uint32_t sz);
+void W25_Erase_Sector(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr);
+void W25_Erase_Block(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr);
+void W25_Erase_Chip(SPI_HandleTypeDef hspi,w25_info_t w25_info);
 //---------------------------------------------------------
 #endif /* __W25Q_SPI_H */
