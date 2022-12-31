@@ -368,6 +368,7 @@ void W25_Erase_Sector(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr)
 void W25_Erase_Block(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr)
 {
   W25_Wait_Write_End(hspi,w25_info);
+  W25_Set_Block_Protect(hspi,0x00);
   addr = addr * w25_info.BlockSize;
   W25_Write_Enable(hspi);
   cs_set();
@@ -389,7 +390,9 @@ void W25_Erase_Block(SPI_HandleTypeDef hspi,w25_info_t w25_info,uint32_t addr)
   }
   cs_reset();
   W25_Wait_Write_End(hspi,w25_info);
-  HAL_Delay(1);
+//  HAL_Delay(1);
+	W25_Write_Disable(hspi);
+	W25_Set_Block_Protect(hspi,0x0F);
 }
 //-------------------------------------------------------------
 void W25_Erase_Chip(SPI_HandleTypeDef hspi,w25_info_t w25_info)
