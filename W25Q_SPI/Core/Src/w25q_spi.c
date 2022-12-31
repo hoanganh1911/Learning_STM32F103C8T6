@@ -1,6 +1,9 @@
 #include "w25q_spi.h"
-w25_info_t  w25_info;
 uint8_t buf[256];
+extern SPI_HandleTypeDef hspi1;
+extern UART_HandleTypeDef huart1;
+extern w25_info_t  w25_info;
+//---------------------------------------------------------
 void SPI1_Send(uint8_t *dt,uint16_t cnt)
 {
 	HAL_SPI_Transmit(&hspi1, dt, cnt, 1000);

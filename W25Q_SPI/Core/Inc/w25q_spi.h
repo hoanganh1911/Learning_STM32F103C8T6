@@ -29,9 +29,6 @@
 #define cs_set() HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,GPIO_PIN_RESET)
 #define cs_reset() HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,GPIO_PIN_SET)
 //---------------------------------------------------------
-extern SPI_HandleTypeDef hspi1;
-extern UART_HandleTypeDef huart1;
-//---------------------------------------------------------
 typedef struct
 {
   uint16_t  PageSize;

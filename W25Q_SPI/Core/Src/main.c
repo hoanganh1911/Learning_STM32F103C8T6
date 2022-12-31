@@ -45,6 +45,7 @@
 /* USER CODE BEGIN PV */
 SPI_HandleTypeDef hspi1;
 UART_HandleTypeDef huart1;
+w25_info_t  w25_info;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
