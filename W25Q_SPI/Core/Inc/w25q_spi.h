@@ -48,7 +48,7 @@ typedef struct
 //---------------------------------------------------------
 void SPI1_Send(SPI_HandleTypeDef hspi,uint8_t *dt,uint16_t cnt);
 void SPI1_Recv(SPI_HandleTypeDef hspi,uint8_t *dt,uint16_t cnt);
-void W25_Info(SPI_HandleTypeDef hspi,UART_HandleTypeDef huart,w25_info_t w25_info);
+void W25_Info(SPI_HandleTypeDef hspi,UART_HandleTypeDef huart,w25_info_t *w25_info);
 void W25_Init(SPI_HandleTypeDef hspi);
 void W25_Reset(SPI_HandleTypeDef hspi);
 void W25_Read_Data(SPI_HandleTypeDef hspi,uint32_t addr,uint8_t* data,uint32_t sz);
