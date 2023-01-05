@@ -24,10 +24,10 @@ void SysClockConfig(void)
 	RCC->CR |= RCC_CR_HSEON;
 	while (!(RCC->CR & RCC_CR_HSERDY));
 	// 2. Cài đặt POWER ENABLE CLOCK
-	RCC->APB1ENR != RCC_APB1ENR_PWREN;
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
 	// 3. Cấu hình FLASH PREFETCH and the LATENCY Realated Settings
 	FLASH->ACR	|= FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY_2;
-	// 4.Cấu hình PRESCALARS HCLK, PCLK1, PCLK2
+	// 4. Cấu hình PRESCALARS HCLK, PCLK1, PCLK2
 	// AHB PR
 	RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
 	// APB1 PR
@@ -37,15 +37,56 @@ void SysClockConfig(void)
 	// 5. Cấu hình PLL
 	RCC->CFGR |= RCC_CFGR_PLLSRC;
 	RCC->CFGR |= RCC_CFGR_PLLMULL9;
-	// 6.Bật PLL và chờ sẵn sàng
-	RCC->CFGR |= RCC_CR_PLLON;
+	// 6. Bật PLL và chờ sẵn sàng
+	RCC->CR |= RCC_CR_PLLON;
 	while(!(RCC->CR & RCC_CR_PLLRDY));
+	// 7. Chọn Clock Source và chờ nó cài đặt
+	RCC->CFGR |= RCC_CFGR_SW_PLL;
+	while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
 }
-
+void Timer2_Config(void)
+{
+	// 1. Kích hoạt Timer Clock
+	RCC->APB1ENR |= (1<<0);
+	// 2. Đặt prescalar và ARR
+	TIM2->ARR = 0xffff - 1;
+	TIM2->PSC = 72 -1;
+	// 3. Kích hoạt Timer, và đợi cho update Flag được cài đặt
+	TIM2->CR1 |= (1<<0);
+	while(!(TIM2->SR & (1<<0)));
+}
+void GPIO_Config(void)
+{
+	// 1. Enable the GPIOC CLOCK
+	RCC->APB2ENR |= (1<<4);
+	// 2. Set the Pin as OUTPUT 10MHz,push pull
+	GPIOC->CRH |= ( (1<<20) | (1<<21) );
+	GPIOC->CRH &= ~( (1<<22) | (1<<23) );
+}
+void Delay_us(uint16_t us)
+{
+	// 1. Reset lại Couter
+	TIM2->CNT = 0;
+	// 2. Chờ đếm mỗi lần đếm sẽ mất 1us
+	while(TIM2->CNT < us);
+}
+void Delay_ms(uint16_t ms)
+{
+	for(uint16_t i=0; i<ms;i++)
+	{
+		Delay_us(1000);
+	}
+}
 int main(void)
 {
+	SysClockConfig();
+	Timer2_Config();
+	GPIO_Config();
     while(1)
     {
-
+		GPIOC->BSRR |= (1<<13);
+    	Delay_ms(1000);
+    	GPIOC->BSRR |= (1<<29);
+    	Delay_ms(1000);
     }
 }
