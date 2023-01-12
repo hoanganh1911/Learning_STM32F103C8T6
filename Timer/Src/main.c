@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include "stm32f1xx.h"
 
-int myTicks = 0;
+volatile int myTicks = 0;
 void SysClockConfig(void)
 {
 	// 1. Cấu hình HSE và chờ cho HSE sẵn sàng
@@ -61,10 +61,11 @@ void Timer2_Config_IRQ(void)
 {
 	// 1. Kích hoạt Timer Clock
 	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+
 	// 2. Đặt prescalar và ARR
-	TIM2->ARR = 0;
-	TIM2->PSC = 72 - 1;
-	// 3. Chỉ đếm lên, đếm xuống tạo một cập nhật ngắt
+	TIM2->ARR = 35;
+	TIM2->PSC = 0;
+	// 3. Chỉ overflow or underflow tạo một cập nhật ngắt
 	TIM2->CR1 |= TIM_CR1_URS;
 	// 4. UIE: Update Interrupt enable
 	TIM2->DIER |= TIM_DIER_UIE;
@@ -76,19 +77,18 @@ void Timer2_Config_IRQ(void)
 }
 void TIM2_IRQHandler(void)
 {
-	if(TIM2->SR & TIM_SR_UIF)
-	{
-		myTicks++;
-	}
+	TIM2->SR &= TIM_SR_UIF;
+	TIM2->CR1 |= TIM_CR1_URS;
+	myTicks++;
 	TIM2->SR &= ~TIM_SR_UIF;
 }
 void Delay_ms_IRQ(uint16_t ms)
 {
-	// Kích hoạt Timer, và đợi cho update Flag được cài đặt
-	myTicks = 0;
+	// Kích hoạt Timer, và đợi cho update Flag ngắt được cài đặt
+
 	TIM2->CR1 |= TIM_CR1_CEN;
 	while(!(TIM2->SR & (1<<0)));
-
+	myTicks = 0;
 	while(myTicks < (ms*1000));
 	TIM2->CR1 &= ~TIM_CR1_CEN;
 }
@@ -110,20 +110,20 @@ void GPIO_Config(void)
 	GPIOC->CRH |= ( (1<<20) | (1<<21) );
 	GPIOC->CRH &= ~( (1<<22) | (1<<23) );
 }
-void Delay_us(uint16_t us)
-{
-	// 1. Reset lại Couter
-	TIM2->CNT = 0;
-	// 2. Chờ đếm mỗi lần đếm sẽ mất 1us
-	while(TIM2->CNT < us);
-}
-void Delay_ms(uint16_t ms)
-{
-	for(uint16_t i=0; i<ms;i++)
-	{
-		Delay_us(1000);
-	}
-}
+//void Delay_us(uint16_t us)
+//{
+//	// 1. Reset lại Couter
+//	TIM2->CNT = 0;
+//	// 2. Chờ đếm mỗi lần đếm sẽ mất 1us
+//	while(TIM2->CNT < us);
+//}
+//void Delay_ms(uint16_t ms)
+//{
+//	for(uint16_t i=0; i<ms;i++)
+//	{
+//		Delay_us(1000);
+//	}
+//}
 int main(void)
 {
 	SysClockConfig();

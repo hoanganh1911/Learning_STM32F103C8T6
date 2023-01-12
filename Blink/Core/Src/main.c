@@ -56,7 +56,7 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint32_t x = 0;
 /* USER CODE END 0 */
 
 /**
@@ -103,7 +103,11 @@ int main(void)
 	  if(((GPIOC->ODR) | (0x2000) >> 13) == 1)
 		  status = "led off\n";
 	  else
+	  {
 		  status = "led on\n";
+	  	  x++;
+	  }
+
 	  HAL_UART_Transmit(&huart1, (uint8_t*) status, strlen(status), 5000);
     /* USER CODE BEGIN 3 */
   }
