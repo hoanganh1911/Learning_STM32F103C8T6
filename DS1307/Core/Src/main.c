@@ -21,6 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "i2c.h"
 #include "ds1307.h"
 #include "lcd.h"
 /* USER CODE END Includes */
@@ -44,6 +45,7 @@ I2C_HandleTypeDef hi2c1;
 
 UART_HandleTypeDef huart1;
 uint8_t Buffer[25] = {0};
+char *bufferStr;
 uint8_t Space[] = " - ";
 uint8_t StartMSG[] = "Starting I2C Scanning: \r\n";
 uint8_t EndMSG[] = "Done! \r\n\r\n";
@@ -73,10 +75,10 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	_RTC x = {
-	    .Year = 19, .Month = 12, .Date = 12,
-	    .DayOfWeek = SUNDAY,
-	    .Hour = 12, .Min = 12, .Sec = 12
-	};
+		    .Year = 19, .Month = 12, .Date = 12,
+		    .DayOfWeek = SUNDAY,
+		    .Hour = 12, .Min = 12, .Sec = 12
+		};
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -100,43 +102,33 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  ds1307_Init(&hi2c1);
-  bool state = ds1307_setTime(&x);
-  uint8_t i = 0, ret;
+  i2c_Init(&hi2c1);
+  lcd_Init();
   HAL_Delay(1000);
-  HAL_UART_Transmit(&huart1, StartMSG, sizeof(StartMSG), 10000);
-  for(i=1; i<128; i++)
-      {
-          ret = HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(i<<1), 3, 5);
-          if (ret != HAL_OK) /* No ACK Received At That Address */
-          {
-              HAL_UART_Transmit(&huart1, Space, sizeof(Space), 10000);
-          }
-          else if(ret == HAL_OK)
-          {
-              sprintf(Buffer, "0x%X", i);
-              HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
-          }
-      }
-  HAL_UART_Transmit(&huart1, EndMSG, sizeof(EndMSG), 10000);
-  /* USER CODE END 2 */
+  bool state = ds1307_setTime(&x);
+	/* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
+	ds1307_getTime(&x);
+	// Chuyền qua uart được nhưng nếu thêm từ dòng 124 thì ko chuyền được nữa
+//	sprintf(Buffer, "%d:",x.Hour);
+//	HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
+//	sprintf(Buffer, "%d:", x.Min);
+//	HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
+//	sprintf(Buffer, "%d\n", x.Sec);
+//	HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
+	snprintf(bufferStr,"%02d:%02d:%02d",x.Hour,x.Min,x.Sec);
+	lcd_Put_Cur(0, 0);
+	lcd_Send_String(bufferStr);
+	HAL_Delay(500);
+	//lcd_Clear();
 
     /* USER CODE BEGIN 3 */
-	  ds1307_getTime(&x);
 
-	  sprintf(Buffer, "%d:",x.Hour);
-	  HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
-	  sprintf(Buffer, "%d:", x.Min);
-	  HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
-	  sprintf(Buffer, "%d\n", x.Sec);
-	  HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
-	  HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }

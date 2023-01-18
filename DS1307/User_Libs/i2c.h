@@ -9,11 +9,7 @@
 #define I2C_H_
 //---------------------------------------------------------
 #include "stm32f1xx_hal.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
 //---------------------------------------------------------
-
+void i2c_Init(I2C_HandleTypeDef *handle);
 
 #endif /* I2C_H_ */

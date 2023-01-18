@@ -14,9 +14,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "i2c.h"
-extern I2C_HandleTypeDef *hi2c;
+
 //---------------------------------------------------------
-
-
-
+bool lcd_Send_Cmd(char cmd);
+bool lcd_Send_Data(char data);
+void lcd_Clear(void);
+void lcd_Put_Cur(int row,int col);
+void lcd_Init(void);
+void lcd_Send_String(char *str);
 #endif /* LCD_H_ */

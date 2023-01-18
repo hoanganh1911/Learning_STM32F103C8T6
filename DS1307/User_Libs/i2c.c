@@ -7,7 +7,7 @@
 #include "i2c.h"
 
 I2C_HandleTypeDef *hi2c;
-void lcd_Init(I2C_HandleTypeDef *handle)
+void i2c_Init(I2C_HandleTypeDef *handle)
 {
 	hi2c = handle;
 }

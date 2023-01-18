@@ -30,7 +30,6 @@ typedef struct
 	uint8_t Min;
 	uint8_t Sec;
 } _RTC;
-void ds1307_Init(I2C_HandleTypeDef *handle);
 bool ds1307_getTime(_RTC *rtc);
 bool ds1307_setTime(_RTC *rtc);
 #endif /* __DS1307_H_ */

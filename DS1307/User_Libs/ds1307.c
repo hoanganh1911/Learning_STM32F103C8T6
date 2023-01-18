@@ -8,8 +8,8 @@ bool ds1307_getTime(_RTC *rtc)
 {
 	uint8_t startAddr = DS1307_REG_TIME;
 	uint8_t buffer[7] = {0,};
-	if(HAL_I2C_Master_Transmit(i2c,DS1307_ADDR, &startAddr, 1, HAL_MAX_DELAY) != HAL_OK) return false;
-	if(HAL_I2C_Master_Receive(i2c, DS1307_ADDR, buffer, sizeof(buffer), HAL_MAX_DELAY) != HAL_OK) return false;
+	if(HAL_I2C_Master_Transmit(hi2c,DS1307_ADDR, &startAddr, 1, HAL_MAX_DELAY) != HAL_OK) return false;
+	if(HAL_I2C_Master_Receive(hi2c, DS1307_ADDR, buffer, sizeof(buffer), HAL_MAX_DELAY) != HAL_OK) return false;
 	rtc->Sec = B2D(buffer[0] & 0x7F);
 	rtc->Min = B2D(buffer[1] & 0x7F);
 	rtc->Hour = B2D(buffer[2] & 0x3F);
@@ -25,7 +25,7 @@ bool ds1307_setTime(_RTC *rtc)
 {
 	uint8_t startAddr = DS1307_REG_TIME;
 	uint8_t buffer[8] = {startAddr,D2B(rtc->Sec),D2B(rtc->Min),D2B(rtc->Hour),rtc->DayOfWeek,D2B(rtc->Date),D2B(rtc->Month),D2B(rtc->Year)};
-	if(HAL_I2C_Master_Transmit(i2c, DS1307_ADDR, buffer, sizeof(buffer),HAL_MAX_DELAY) != HAL_OK) return false;
+	if(HAL_I2C_Master_Transmit(hi2c, DS1307_ADDR, buffer, sizeof(buffer),HAL_MAX_DELAY) != HAL_OK) return false;
 
 	return true;
 }
