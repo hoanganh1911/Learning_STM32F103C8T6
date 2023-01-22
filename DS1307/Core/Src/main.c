@@ -45,7 +45,7 @@ I2C_HandleTypeDef hi2c1;
 
 UART_HandleTypeDef huart1;
 uint8_t Buffer[25] = {0};
-char *bufferStr;
+char bufferStr[10];
 uint8_t Space[] = " - ";
 uint8_t StartMSG[] = "Starting I2C Scanning: \r\n";
 uint8_t EndMSG[] = "Done! \r\n\r\n";
@@ -77,7 +77,7 @@ int main(void)
 	_RTC x = {
 		    .Year = 19, .Month = 12, .Date = 12,
 		    .DayOfWeek = SUNDAY,
-		    .Hour = 12, .Min = 12, .Sec = 12
+		    .Hour = 11, .Min = 06, .Sec = 00
 		};
   /* USER CODE END 1 */
 
@@ -104,8 +104,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
   i2c_Init(&hi2c1);
   lcd_Init();
+  lcd_Put_Cur(0, 0);
+  lcd_Send_String("HAPPY NEW YEAR");
   HAL_Delay(1000);
-  bool state = ds1307_setTime(&x);
+  lcd_Put_Cur(1, 12);
+  lcd_Send_String("2023");
+  HAL_Delay(1000);
 	/* USER CODE END 2 */
 
   /* Infinite loop */
@@ -113,20 +117,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	ds1307_getTime(&x);
-	// Chuyền qua uart được nhưng nếu thêm từ dòng 124 thì ko chuyền được nữa
-//	sprintf(Buffer, "%d:",x.Hour);
-//	HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
-//	sprintf(Buffer, "%d:", x.Min);
-//	HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
-//	sprintf(Buffer, "%d\n", x.Sec);
-//	HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
-	snprintf(bufferStr,"%02d:%02d:%02d",x.Hour,x.Min,x.Sec);
-	lcd_Put_Cur(0, 0);
-	lcd_Send_String(bufferStr);
-	HAL_Delay(500);
-	//lcd_Clear();
+	//ds1307_getTime(&x);
+	//sprintf(bufferStr,"%02d:%02d:%02d",x.Hour,x.Min,x.Sec);
 
+
+//	HAL_Delay(1);
+//	lcd_Clear();
+//	lcd_Put_Cur(1,0);
+//	lcd_Send_String("2023");
+//	HAL_Delay(1);
+//	lcd_Clear();
     /* USER CODE BEGIN 3 */
 
   }

@@ -1,14 +1,9 @@
-/*
- * lcd.c
- *
- *  Created on: Jan 17, 2023
- *      Author: hoanganh
- */
+
 #include "lcd.h"
 extern I2C_HandleTypeDef *hi2c;
 #define LCD_ADDR 0x27 << 1
 
-bool lcd_Send_Cmd(char cmd)
+bool lcd_Send_Cmd(char cmd) //Mỗi lần gửi sẽ gửi 4 bit cao xong rồi đến 4 bit thấp
 {
 	char data_u, data_l; // vi du 0x30
 	uint8_t data_t[4];
@@ -47,12 +42,13 @@ void lcd_Put_Cur(int row,int col)
 	switch(row)
 	{
 		case 0:
-			col |= 0x80;
+			col |= 0x80; //0x80 1 000 000x
 			break;
 		case 1:
-			row |= 0xC0;
+			col |= 0xC0; // 0xC1 1 100 000x
 			break;
 	}
+	//Gửi lệnh ứng với vị trí cần xuất hiện con trỏ Set DDRAM address tr24
 	lcd_Send_Cmd(col);
 }
 void lcd_Init(void)
@@ -67,17 +63,18 @@ void lcd_Init(void)
 	HAL_Delay(10);
 	lcd_Send_Cmd(0x20);
 	HAL_Delay(10);
-
-	lcd_Send_Cmd(0x28);
+	// Khởi tạo hiển thị
+	//00 00 101 00
+	lcd_Send_Cmd(0x28); //function set bảng 6/tr23: set data interface 4bits 2lines 5x8 bit
 	HAL_Delay(1);
-	lcd_Send_Cmd(0x08);
+	lcd_Send_Cmd(0x08); //display on/off control
 	HAL_Delay(1);
-	lcd_Send_Cmd(0x01);
+	lcd_Send_Cmd(0x01); //clear display
 	HAL_Delay(1);
 	HAL_Delay(1);
-	lcd_Send_Cmd(0x06);
+	lcd_Send_Cmd(0x06); //entry mode set: i/d=1 increment s=0
 	HAL_Delay(1);
-	lcd_Send_Cmd(0x0C);
+	lcd_Send_Cmd(0x0C); // cho phep hien thi man hinh
 }
 void lcd_Send_String(char *str)
 {
