@@ -1,7 +1,7 @@
 
 #include "lcd.h"
 extern I2C_HandleTypeDef *hi2c;
-#define LCD_ADDR 0x27 << 1
+#define LCD_ADDR 0x20 << 1
 
 bool lcd_Send_Cmd(char cmd) //Mỗi lần gửi sẽ gửi 4 bit cao xong rồi đến 4 bit thấp
 {
@@ -9,10 +9,15 @@ bool lcd_Send_Cmd(char cmd) //Mỗi lần gửi sẽ gửi 4 bit cao xong rồi 
 	uint8_t data_t[4];
 	data_u = (cmd & 0xf0); // data_u = 	0x30
 	data_l = ((cmd << 4) & 0xf0); // data_l = 0x00
-	data_t[0] = data_u | 0x0C; // 0000 1100 | 0011 0000 = 0011 1100 = 0x3C
-	data_t[1] = data_u | 0x08; // 0000 1000 | 0011 0000 = 0011 1000 = 0x38
-	data_t[2] = data_l | 0x0C; // 0000 1100 | 0000 0000 = 0000 1100 = 0x0C
-	data_t[3] = data_l | 0x08; // 0000 1000 | 0000 0000 = 0000 1000 = 0x08
+//	data_t[0] = data_u | 0x0C; // 0000 1100 | 0011 0000 = 0011 1100 = 0x3C
+//	data_t[1] = data_u | 0x08; // 0000 1000 | 0011 0000 = 0011 1000 = 0x38
+//	data_t[2] = data_l | 0x0C; // 0000 1100 | 0000 0000 = 0000 1100 = 0x0C
+//	data_t[3] = data_l | 0x08; // 0000 1000 | 0000 0000 = 0000 1000 = 0x08
+
+	data_t[0] = (data_u >> 1) | 0x04 | 0x80; // 1000 0000 | 0000 0100 | 0001 1000 = 1001 1100
+	data_t[1] = (data_u >> 1) | 0x00 | 0x80; // 1000 0000 | 0000 0000 | 0001 1000 = 1001 1000
+	data_t[2] = (data_l >> 1) | 0x04 | 0x80;
+	data_t[3] = (data_l >> 1) | 0x00 | 0x80;
 	if(HAL_I2C_Master_Transmit(hi2c, LCD_ADDR,(uint8_t *)data_t, 4, 100) != HAL_OK) return false;
 	return true;
 }
@@ -22,17 +27,21 @@ bool lcd_Send_Data(char data)
 	uint8_t data_t[4];
 	data_u = (data & 0xf0);
 	data_l = ((data << 4) & 0xf0);
-	data_t[0] = data_u | 0x0D; // 1101
-	data_t[1] = data_u | 0x09; // 1001
-	data_t[2] = data_l | 0x0D;
-	data_t[3] = data_l | 0x09;
+//	data_t[0] = data_u | 0x0D; // 1101
+//	data_t[1] = data_u | 0x09; // 1001
+//	data_t[2] = data_l | 0x0D;
+//	data_t[3] = data_l | 0x09;
+	data_t[0] = (data_u >> 1)  | 0x05 | 0x80;
+	data_t[1] = (data_u >> 1)  | 0x01 | 0x80;
+	data_t[2] = (data_l >> 1)  | 0x05 | 0x80;
+	data_t[3] = (data_l >> 1)  | 0x01 | 0x80;
 	if(HAL_I2C_Master_Transmit(hi2c, LCD_ADDR, (uint8_t *)data_t, 4, 100) != HAL_OK) return false;
 	return true;
 }
 void lcd_Clear(void)
 {
 	lcd_Send_Cmd(0x80);
-	for(int i = 0; i < 70; i++)
+	for(int i = 0; i < 100; i++)
 	{
 		lcd_Send_Data(' ');
 	}
@@ -46,6 +55,14 @@ void lcd_Put_Cur(int row,int col)
 			break;
 		case 1:
 			col |= 0xC0; // 0xC1 1 100 000x
+			break;
+		case 2:
+			//col |= 0x90;
+			col = (col+3) | 0x90;
+			break;
+		case 3:
+			//col |= 0xD0;
+			col = (col+3) | 0xD0;
 			break;
 	}
 	//Gửi lệnh ứng với vị trí cần xuất hiện con trỏ Set DDRAM address tr24
@@ -80,6 +97,3 @@ void lcd_Send_String(char *str)
 {
 	while(*str) lcd_Send_Data(*str++);
 }
-
-
-

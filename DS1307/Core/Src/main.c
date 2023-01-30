@@ -79,6 +79,7 @@ int main(void)
 		    .DayOfWeek = SUNDAY,
 		    .Hour = 11, .Min = 06, .Sec = 00
 		};
+	uint8_t i = 0, ret;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -102,13 +103,27 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+//  for(i=1; i<128; i++)
+//	{
+//		ret = HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(i<<1), 3, 5);
+//		if (ret != HAL_OK) /* No ACK Received At That Address */
+//		{
+//			HAL_UART_Transmit(&huart1, Space, sizeof(Space), 10000);
+//		}
+//		else if(ret == HAL_OK)
+//		{
+//			sprintf(Buffer, "0x%X", i);
+//			HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
+//		}
+//	}
   i2c_Init(&hi2c1);
   lcd_Init();
-  lcd_Put_Cur(0, 0);
-  lcd_Send_String("HAPPY NEW YEAR");
-  HAL_Delay(1000);
-  lcd_Put_Cur(1, 12);
-  lcd_Send_String("2023");
+  HAL_UART_Transmit(&huart1, EndMSG, sizeof(EndMSG), 10000);
+  //lcd_Send_Cmd(0x80|0x00);
+  //lcd_Put_Cur(3,5);
+  //lcd_Send_String("HELLO WORLD");
+  lcd_Clear();
+  //lcd_Send_String("HELLO WORLD");
   HAL_Delay(1000);
 	/* USER CODE END 2 */
 
