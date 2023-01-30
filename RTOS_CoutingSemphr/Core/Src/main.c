@@ -42,8 +42,11 @@
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart1;
 
-osThreadId TaskHandle;
-osThreadId Task2Handle;
+osThreadId Task01Handle;
+osThreadId Task02Handle;
+osThreadId Task03Handle;
+osSemaphoreId myCountingSem01Handle;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -52,8 +55,9 @@ osThreadId Task2Handle;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
-void StartTask1(void const * argument);
-void StartTask2(void const * argument);
+void StarTtask01(void const * argument);
+void StartTask02(void const * argument);
+void StartTask03(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -101,6 +105,11 @@ int main(void)
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
+  /* Create the semaphores(s) */
+  /* definition and creation of myCountingSem01 */
+  //osSemaphoreDef(myCountingSem01);
+  //myCountingSem01Handle = osSemaphoreCreate(osSemaphore(myCountingSem01), 2);
+  myCountingSem01Handle = xSemaphoreCreateCounting(2,0);
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -114,13 +123,17 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of Task */
-  osThreadDef(Task, StartTask1, osPriorityNormal, 0, 128);
-  TaskHandle = osThreadCreate(osThread(Task), NULL);
+  /* definition and creation of Task01 */
+  osThreadDef(Task01, StarTtask01, osPriorityNormal, 0, 128);
+  Task01Handle = osThreadCreate(osThread(Task01), NULL);
 
-  /* definition and creation of Task2 */
-  osThreadDef(Task2, StartTask2, osPriorityNormal, 0, 128);
-  Task2Handle = osThreadCreate(osThread(Task2), NULL);
+  /* definition and creation of Task02 */
+  osThreadDef(Task02, StartTask02, osPriorityNormal, 0, 128);
+  Task02Handle = osThreadCreate(osThread(Task02), NULL);
+
+  /* definition and creation of Task03 */
+  osThreadDef(Task03, StartTask03, osPriorityAboveNormal, 0, 128);
+  Task03Handle = osThreadCreate(osThread(Task03), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -231,46 +244,75 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartTask1 */
+/* USER CODE BEGIN Header_StarTtask01 */
 /**
-  * @brief  Function implementing the Task thread.
+  * @brief  Function implementing the Task01 thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartTask1 */
-void StartTask1(void const * argument)
+/* USER CODE END Header_StarTtask01 */
+void StarTtask01(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
   for(;;)
   {
-	char str[] = "Task 1 is running\n";
-	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 100);
-	HAL_Delay(500);
-//    osDelay(1000);
+	char str[20];
+	sprintf(str,"\n %s give signal ",pcTaskGetName(Task01Handle));
+	xSemaphoreGive(myCountingSem01Handle);
+	//osSemaphoreRelease(Task01Handle);
+	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 1000);
+
+    osDelay(1000);
   }
   /* USER CODE END 5 */
 }
 
-/* USER CODE BEGIN Header_StartTask2 */
+/* USER CODE BEGIN Header_StartTask02 */
 /**
-* @brief Function implementing the Task2 thread.
+* @brief Function implementing the Task02 thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartTask2 */
-void StartTask2(void const * argument)
+/* USER CODE END Header_StartTask02 */
+void StartTask02(void const * argument)
 {
-  /* USER CODE BEGIN StartTask2 */
+  /* USER CODE BEGIN StartTask02 */
   /* Infinite loop */
-  //osDelay(1000);
   for(;;)
   {
-	char str[] = "Task 2 is running\n";
-	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 100);
-	HAL_Delay(500);
+	char str[20];
+	sprintf(str,"\n %s give signal ",pcTaskGetName(Task02Handle));
+	xSemaphoreGive(myCountingSem01Handle);
+	//osSemaphoreRelease(Task02Handle);
+	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 1000);
+	osDelay(1000);
   }
-  /* USER CODE END StartTask2 */
+  /* USER CODE END StartTask02 */
+}
+
+/* USER CODE BEGIN Header_StartTask03 */
+/**
+* @brief Function implementing the Task03 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask03 */
+void StartTask03(void const * argument)
+{
+  /* USER CODE BEGIN StartTask03 */
+  /* Infinite loop */
+  for(;;)
+  {
+	//osSemaphoreWait(Task03Handle, portMAX_DELAY);
+	//osSemaphoreWait(Task03Handle, portMAX_DELAY);
+	xSemaphoreTake(myCountingSem01Handle,portMAX_DELAY);
+	xSemaphoreTake(myCountingSem01Handle,portMAX_DELAY);
+	char str[20];
+	sprintf(str,"\n %s synchronized",pcTaskGetName(Task03Handle));
+	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 1000);
+  }
+  /* USER CODE END StartTask03 */
 }
 
 /**
