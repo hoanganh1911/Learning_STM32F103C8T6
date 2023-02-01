@@ -246,8 +246,8 @@ void StartTask1(void const * argument)
   {
 	char str[] = "Task 1 is running\n";
 	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 100);
-	HAL_Delay(500);
-//    osDelay(1000);
+	HAL_Delay(50);
+    //osDelay(1000);
   }
   /* USER CODE END 5 */
 }
@@ -268,14 +268,14 @@ void StartTask2(void const * argument)
   {
 	char str[] = "Task 2 is running\n";
 	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 100);
-	HAL_Delay(500);
+	HAL_Delay(120);
   }
   /* USER CODE END StartTask2 */
 }
 
 /**
   * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM2 interrupt took place, inside
+  * @note   This function is called  when TIM4 interrupt took place, inside
   * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
   * a global variable "uwTick" used as application time base.
   * @param  htim : TIM handle
@@ -286,7 +286,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE BEGIN Callback 0 */
 
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM2) {
+  if (htim->Instance == TIM4) {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */

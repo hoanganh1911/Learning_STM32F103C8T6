@@ -19,7 +19,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -107,9 +106,9 @@ int main(void)
 
   /* Create the semaphores(s) */
   /* definition and creation of myCountingSem01 */
-  //osSemaphoreDef(myCountingSem01);
-  //myCountingSem01Handle = osSemaphoreCreate(osSemaphore(myCountingSem01), 2);
-  myCountingSem01Handle = xSemaphoreCreateCounting(2,0);
+  osSemaphoreDef(myCountingSem01);
+  myCountingSem01Handle = osSemaphoreCreate(osSemaphore(myCountingSem01), 2);
+  //myCountingSem01Handle = xSemaphoreCreateCounting(2,0);
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -259,8 +258,8 @@ void StarTtask01(void const * argument)
   {
 	char str[20];
 	sprintf(str,"\n %s give signal ",pcTaskGetName(Task01Handle));
-	xSemaphoreGive(myCountingSem01Handle);
-	//osSemaphoreRelease(Task01Handle);
+	//xSemaphoreGive(myCountingSem01Handle);
+	osSemaphoreRelease(myCountingSem01Handle);
 	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 1000);
 
     osDelay(1000);
@@ -283,8 +282,8 @@ void StartTask02(void const * argument)
   {
 	char str[20];
 	sprintf(str,"\n %s give signal ",pcTaskGetName(Task02Handle));
-	xSemaphoreGive(myCountingSem01Handle);
-	//osSemaphoreRelease(Task02Handle);
+	//xSemaphoreGive(myCountingSem01Handle);
+	osSemaphoreRelease(myCountingSem01Handle);
 	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 1000);
 	osDelay(1000);
   }
@@ -304,10 +303,10 @@ void StartTask03(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	//osSemaphoreWait(Task03Handle, portMAX_DELAY);
-	//osSemaphoreWait(Task03Handle, portMAX_DELAY);
-	xSemaphoreTake(myCountingSem01Handle,portMAX_DELAY);
-	xSemaphoreTake(myCountingSem01Handle,portMAX_DELAY);
+	osSemaphoreWait(myCountingSem01Handle, portMAX_DELAY);
+	osSemaphoreWait(myCountingSem01Handle, portMAX_DELAY);
+	//xSemaphoreTake(myCountingSem01Handle,portMAX_DELAY);
+	//xSemaphoreTake(myCountingSem01Handle,portMAX_DELAY);
 	char str[20];
 	sprintf(str,"\n %s synchronized",pcTaskGetName(Task03Handle));
 	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 1000);
