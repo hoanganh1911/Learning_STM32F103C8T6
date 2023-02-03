@@ -36,8 +36,8 @@ typedef struct
 }_ACCRAW;
 typedef enum
 {
-	MC34X9_MODE_STANDBY  = 0b000,
-	MC34X9_MODE_CWAKE      = 0b001,
+	MC34X9_MODE_STANDBY  	= 0b000,
+	MC34X9_MODE_CWAKE      	= 0b001,
 
 }   MC34X9_mode_t;
 typedef enum
@@ -63,4 +63,5 @@ typedef enum //sample rate
 }   MC34X9_sr_t;
 void readRawAccel(_ACCRAW *accraw);
 void sensorMotion(void);
+void start(void);
 #endif /* MC3419_H_ */

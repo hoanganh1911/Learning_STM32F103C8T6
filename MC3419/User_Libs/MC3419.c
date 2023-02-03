@@ -6,16 +6,16 @@
  */
 #include "MC3419.h"
 #define MC34X9_CFG_MODE_DEFAULT                 MC34X9_MODE_STANDBY
-#define MC34X9_CFG_SAMPLE_RATE_DEFAULT    MC34X9_SR_DEFAULT_1000Hz
+#define MC34X9_CFG_SAMPLE_RATE_DEFAULT    		MC34X9_SR_DEFAULT_1000Hz
 #define MC34X9_CFG_RANGE_DEFAULT                MC34X9_RANGE_8G
 uint8_t CfgRange, CfgFifo;
 void readRawAccel(_ACCRAW *accraw)
 {
-	uint8_t startAddr = MC34X9_REG_XOUT_LSB;
+	uint16_t startAddr = MC34X9_REG_XOUT_LSB;
 	float faRange[5] = { 19.614f, 39.228f, 78.456f, 156.912f, 117.684f};
 	// 16bit
 	float faResolution = 32768.0f;
-	uint8_t *buffer;
+	uint16_t *buffer;
 	buffer = (uint8_t *)malloc(6);
 	HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, startAddr, 1, buffer, 6, HAL_MAX_DELAY);
 	accraw->x = (buffer[1] << 8 | buffer[0])/ faResolution * faRange[CfgRange];
@@ -25,7 +25,7 @@ void readRawAccel(_ACCRAW *accraw)
 }
 void SetMode(MC34X9_mode_t mode)
 {
-	uint8_t startAddr = MC34X9_REG_MODE;
+	uint16_t startAddr = MC34X9_REG_MODE;
 	uint8_t value = 0;
 	value |= mode;
 	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, startAddr, 1, &value, 1, HAL_MAX_DELAY);
@@ -79,21 +79,26 @@ void reset()
 	// Stand by mode
 	SetMode(MC34X9_MODE_STANDBY);
 	HAL_Delay(10);
+	uint8_t temp;
 	// power-on-reset
-	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x1c, 1, (uint8_t *) 0x40, 1, HAL_MAX_DELAY);
+	temp = 0x40;
+	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x1C, 1, &temp, 1, HAL_MAX_DELAY);
 	HAL_Delay(50);
 	//Disabe interrupt
-	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x06, 1, (uint8_t *) 0x00, 1, HAL_MAX_DELAY);
+	temp = 0x00;
+	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x06, 1, &temp, 1, HAL_MAX_DELAY);
 	HAL_Delay(10);
 	// 1.00x Aanalog Gain
-	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x2B, 1, (uint8_t *) 0x00, 1, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x2B, 1, &temp, 1, HAL_MAX_DELAY);
 	HAL_Delay(10);
 	// DCM disable
-	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x15, 1, (uint8_t *) 0x00, 1, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x15, 1, &temp, 1, HAL_MAX_DELAY);
 	HAL_Delay(50);
 }
-void start()
+//Initialize the MC34X9 sensor and set as the default configuration
+void start() // hiện tại là i2c
 {
+	//Init reset
 	reset();
 	SetMode(MC34X9_MODE_STANDBY);
 	//Range: 8g

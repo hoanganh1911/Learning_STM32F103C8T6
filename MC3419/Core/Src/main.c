@@ -96,6 +96,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   i2c_Init(&hi2c1);
+  start();
   sensorMotion();
   /* USER CODE END 2 */
 
@@ -110,7 +111,7 @@ int main(void)
 	  char str[100];
 	  sprintf(str,"X: %.02f Y: %.02f Z: %.02f \n\r",accRaw.x,accRaw.y,accRaw.z);
 	  HAL_UART_Transmit(&huart1, (uint8_t *)str, strlen(str),100);
-	  HAL_Delay(10);
+	  HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
