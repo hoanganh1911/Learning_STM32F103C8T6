@@ -61,7 +61,21 @@ void StartTask2(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint32_t tickstart = HAL_GetTick();
+void HAL_Delay(uint32_t Delay)
+{
+  uint32_t wait = Delay;
 
+  /* Add a freq to guarantee minimum wait */
+  if (wait < HAL_MAX_DELAY)
+  {
+    wait += (uint32_t)(uwTickFreq);
+  }
+
+  while ((HAL_GetTick() - tickstart) < wait)
+  {
+  }
+}
 /* USER CODE END 0 */
 
 /**
@@ -119,7 +133,7 @@ int main(void)
   TaskHandle = osThreadCreate(osThread(Task), NULL);
 
   /* definition and creation of Task2 */
-  osThreadDef(Task2, StartTask2, osPriorityNormal, 0, 128);
+  osThreadDef(Task2, StartTask2, osPriorityAboveNormal, 0, 128);
   Task2Handle = osThreadCreate(osThread(Task2), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -244,10 +258,13 @@ void StartTask1(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	char str[] = "Task 1 is running\n";
-	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 100);
-	HAL_Delay(50);
-    //osDelay(1000);
+	char str[] = "Task 1 is running\n\r";
+	HAL_UART_Transmit(&huart1,(uint8_t*)str, strlen(str), 100);
+	HAL_Delay(1000);
+	char str1[] = "Task 1 end\n\r";
+	HAL_UART_Transmit(&huart1,(uint8_t*)str1, strlen(str1), 100);
+	//vTaskDelay(pdMS_TO_TICKS(5));
+	//osDelay(1000);
   }
   /* USER CODE END 5 */
 }
@@ -266,9 +283,11 @@ void StartTask2(void const * argument)
   //osDelay(1000);
   for(;;)
   {
-	char str[] = "Task 2 is running\n";
-	HAL_UART_Transmit(&huart1,(uint8_t*)str, sizeof(str), 100);
-	HAL_Delay(120);
+	char str[] = "Task 2 is running\n\r";
+	HAL_UART_Transmit(&huart1,(uint8_t*)str, strlen(str), 100);
+	HAL_Delay(2000);
+	//vTaskDelay(pdMS_TO_TICKS(5));
+	osDelay(10);
   }
   /* USER CODE END StartTask2 */
 }

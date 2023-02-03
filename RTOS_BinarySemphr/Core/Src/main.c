@@ -250,12 +250,13 @@ void StartTask01(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	char *str1 = "Task 1 give Semaphore\n";
-	HAL_UART_Transmit(&huart1, (uint8_t*)str1, sizeof(str1), 1000);
-	//osSemaphoreRelease(myBinarySem01Handle);
-	char *str2 = "Task 1 finish Semaphore\n\n";
-	HAL_UART_Transmit(&huart1, (uint8_t*)str2, sizeof(str2), 1000);
-    osDelay(1000);
+	char *str1 = "Task 1 give Semaphore\r\n";
+	HAL_UART_Transmit(&huart1, (uint8_t*)str1, strlen(str1), 1000);
+	osSemaphoreRelease(myBinarySem01Handle);
+	char *str2 = "Task 1 finish Semaphore\r\n";
+	HAL_UART_Transmit(&huart1, (uint8_t*)str2, strlen(str2), 1000);
+    //osDelay(1000);
+	HAL_Delay(1000);
   }
   /* USER CODE END 5 */
 }
@@ -273,9 +274,9 @@ void StartTask02(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	//osSemaphoreWait(myBinarySem01Handle, portMAX_DELAY);
-	char *str = "Task 2 synschronzied\n";
-	HAL_UART_Transmit(&huart1, (uint8_t*)str, sizeof(str), 1000);
+	osSemaphoreWait(myBinarySem01Handle, osWaitForever);
+	char *str = "Task 2 synschronzied\r\n";
+	HAL_UART_Transmit(&huart1, (uint8_t*)str, strlen(str), 1000);
   }
   /* USER CODE END StartTask02 */
 }

@@ -97,6 +97,7 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+	HAL_UART_Transmit(&huart1, StartMSG, sizeof(StartMSG), 10000);
 	for(i=1; i<128; i++)
 	{
 		ret = HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(i<<1), 3, 5);
@@ -110,7 +111,7 @@ int main(void)
 			HAL_UART_Transmit(&huart1, Buffer, sizeof(Buffer), 10000);
 		}
 	}
-
+	HAL_UART_Transmit(&huart1, EndMSG, sizeof(EndMSG), 10000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
