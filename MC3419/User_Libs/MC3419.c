@@ -11,17 +11,22 @@
 uint8_t CfgRange, CfgFifo;
 void readRawAccel(_ACCRAW *accraw)
 {
-	uint16_t startAddr = MC34X9_REG_XOUT_LSB;
 	float faRange[5] = { 19.614f, 39.228f, 78.456f, 156.912f, 117.684f};
 	// 16bit
 	float faResolution = 32768.0f;
-	uint16_t *buffer;
-	buffer = (uint8_t *)malloc(6);
-	HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, startAddr, 1, buffer, 6, HAL_MAX_DELAY);
-	accraw->x = (buffer[1] << 8 | buffer[0])/ faResolution * faRange[CfgRange];
-	accraw->y = (buffer[3] << 8 | buffer[2])/ faResolution * faRange[CfgRange];
-	accraw->z = (buffer[5] << 8 | buffer[4])/ faResolution * faRange[CfgRange];
-	free(buffer);
+	uint8_t buffer[6];
+
+	HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, MC34X9_REG_XOUT_LSB, 1, &buffer[0], 1, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, MC34X9_REG_XOUT_MSB, 1, &buffer[1], 1, HAL_MAX_DELAY);
+	accraw->x = (float)((short)((unsigned short)buffer[1] << 8 | buffer[0])) / faResolution * faRange[CfgRange];
+
+	HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, MC34X9_REG_YOUT_LSB, 1, &buffer[2], 1, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, MC34X9_REG_YOUT_MSB, 1, &buffer[3], 1, HAL_MAX_DELAY);
+	accraw->y = (float)((short)((unsigned short)buffer[3] << 8 | buffer[2])) / faResolution * faRange[CfgRange];
+
+	HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, MC34X9_REG_ZOUT_LSB, 1, &buffer[4], 1, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, MC34X9_REG_ZOUT_MSB, 1, &buffer[5], 1, HAL_MAX_DELAY);
+	accraw->z = (float)((short)((unsigned short)buffer[5] << 8 | buffer[4])) / faResolution * faRange[CfgRange];
 }
 void SetMode(MC34X9_mode_t mode)
 {
@@ -42,30 +47,22 @@ void wake()
 
 void SetRangeCtrl(MC34X9_range_t range)
 {
-  uint8_t value;
+  uint8_t value = 0;
   CfgRange = range;
-  SetMode(MC34X9_MODE_STANDBY);
-  HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, MC34X9_REG_RANGE_C, 1, &value, 1, HAL_MAX_DELAY);
-  value &= 0b00000111;
-  value |= (range << 4) & 0x70;
+  value |= 0x08 | range;
   HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, MC34X9_REG_RANGE_C, 1, &value, 1, HAL_MAX_DELAY);
 }
 void SetSampleRate(MC34X9_sr_t sample_rate)
 {
-	uint8_t startAddr = MC34X9_REG_SR;
-	uint8_t value;
-	SetMode(MC34X9_MODE_STANDBY);
-	HAL_I2C_Mem_Read(hi2c, MC3419_ADDR, startAddr, 1, &value, 1, HAL_MAX_DELAY);
-	value &= 0b00000000;
+	uint8_t value = 0;
 	value |= sample_rate;
-	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, startAddr, 1, &value, 1, HAL_MAX_DELAY);
+	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, MC34X9_REG_SR, 1, &value, 1, HAL_MAX_DELAY);
 }
 
 void SetMotionCtrl() // Chi set lac do dang test
 {
-	uint8_t startAddr = MC34X9_REG_MOTION_CTRL;
-	uint8_t CfgMotion = 0b00001100;
-	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, startAddr, 1, &CfgMotion, 1, HAL_MAX_DELAY);
+	uint8_t CfgMotion = 0b00100000;
+	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, MC34X9_REG_MOTION_CTRL, 1, &CfgMotion, 1, HAL_MAX_DELAY);
 }
 void sensorMotion()
 {
@@ -80,20 +77,10 @@ void reset()
 	SetMode(MC34X9_MODE_STANDBY);
 	HAL_Delay(10);
 	uint8_t temp;
-	// power-on-reset
-	temp = 0x40;
-	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x1C, 1, &temp, 1, HAL_MAX_DELAY);
-	HAL_Delay(50);
 	//Disabe interrupt
 	temp = 0x00;
 	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x06, 1, &temp, 1, HAL_MAX_DELAY);
 	HAL_Delay(10);
-	// 1.00x Aanalog Gain
-	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x2B, 1, &temp, 1, HAL_MAX_DELAY);
-	HAL_Delay(10);
-	// DCM disable
-	HAL_I2C_Mem_Write(hi2c, MC3419_ADDR, 0x15, 1, &temp, 1, HAL_MAX_DELAY);
-	HAL_Delay(50);
 }
 //Initialize the MC34X9 sensor and set as the default configuration
 void start() // hiện tại là i2c
@@ -103,7 +90,7 @@ void start() // hiện tại là i2c
 	SetMode(MC34X9_MODE_STANDBY);
 	//Range: 8g
 	SetRangeCtrl(MC34X9_CFG_RANGE_DEFAULT);
-	//Sampling Rate: 50Hz by default
+	//Sampling Rate: 1000Hz by default
 	SetSampleRate(MC34X9_CFG_SAMPLE_RATE_DEFAULT);
 	//Mode: Active
 	SetMode(MC34X9_MODE_CWAKE);

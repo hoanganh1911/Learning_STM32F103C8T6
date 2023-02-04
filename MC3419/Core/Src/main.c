@@ -70,7 +70,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	_ACCRAW accRaw = {
-			.x = 0, .y = 0, .z = 0
+			.x = 0,.z = 0, .y = 0,
 	};
   /* USER CODE END 1 */
 
@@ -98,6 +98,7 @@ int main(void)
   i2c_Init(&hi2c1);
   start();
   sensorMotion();
+  HAL_Delay(5000);
   /* USER CODE END 2 */
 
   /* Infinite loop */

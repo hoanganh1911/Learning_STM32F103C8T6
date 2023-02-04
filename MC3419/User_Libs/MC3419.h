@@ -31,8 +31,9 @@ extern I2C_HandleTypeDef *hi2c;
 typedef struct
 {
 	float x;
-	float y;
 	float z;
+	float y;
+
 }_ACCRAW;
 typedef enum
 {
