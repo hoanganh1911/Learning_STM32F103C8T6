@@ -56,13 +56,15 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 char Rx_data[2];
+uint8_t Rx_indx = 0;
+char *Rx_Buffer;
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance == USART1){
 		if((Rx_data[0])=='1')
-			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		HAL_UART_Transmit(&huart1, (uint8_t *)Rx_data,1, 1000);
-		HAL_UART_Receive_IT(&huart1, (uint8_t *)Rx_data, 1); //Bật ngắt uart lại
+				HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+			HAL_UART_Transmit(&huart1, (uint8_t *)Rx_data,1, 1000);
+			HAL_UART_Receive_IT(&huart1, (uint8_t *)Rx_data, 1); //Bật ngắt uart lại
 	}
 }
 /* USER CODE END 0 */

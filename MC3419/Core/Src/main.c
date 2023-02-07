@@ -97,7 +97,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   i2c_Init(&hi2c1);
   start();
-  sensorMotion();
   HAL_Delay(5000);
   /* USER CODE END 2 */
 

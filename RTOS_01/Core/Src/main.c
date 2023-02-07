@@ -61,21 +61,7 @@ void StartTask2(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint32_t tickstart = HAL_GetTick();
-void HAL_Delay(uint32_t Delay)
-{
-  uint32_t wait = Delay;
 
-  /* Add a freq to guarantee minimum wait */
-  if (wait < HAL_MAX_DELAY)
-  {
-    wait += (uint32_t)(uwTickFreq);
-  }
-
-  while ((HAL_GetTick() - tickstart) < wait)
-  {
-  }
-}
 /* USER CODE END 0 */
 
 /**
